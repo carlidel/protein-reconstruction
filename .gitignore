@@ -1,3 +1,11 @@
+# Data Files
+*.pdb
+*.pkl
+
+# Plots
+*.jpg
+*.png
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
