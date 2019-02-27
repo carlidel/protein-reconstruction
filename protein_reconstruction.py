@@ -70,6 +70,20 @@ def create_AA_contact_map(weight_list):
     return aa_contact_map
 
 
+def mask_AA_contact_map(weight_list, edge_aa_list):
+    N = len(AA_LIST)
+    combo_list = (list(itertools.combinations_with_replacement(range(N), 2)))
+    assert len(weight_list) == len(combo_list)
+    mask = np.zeros((N, N), dtype=bool)
+    for edges in edge_aa_list:
+        for edge in edges:
+            mask[edge[0], edge[1]] = True
+            mask[edge[1], edge[0]] = True
+    masked_AA = create_AA_contact_map(weight_list) * mask
+    masked_AA[masked_AA == 0] = -1
+    return masked_AA
+
+
 def get_perturbed_coordinates(network, masses, target_coordinates,
     normalized=True):
     return fitness_single(masses, (network, target_coordinates), normalized)
