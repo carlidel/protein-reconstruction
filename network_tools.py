@@ -44,7 +44,6 @@ def modify_edges_weitghts(network, mass_list):
         network.edges[edge]['weight'] = mass_list[i]
     return network
 
-
 def get_spectral_coordinates(A=np.zeros(1),
                              M=np.zeros(1),
                              dim=3):
@@ -65,31 +64,27 @@ def get_spectral_coordinates(A=np.zeros(1),
     dim : choose how many dimentions to consider (must be [1,3])
     '''
     if M.any():
-        val, eigenvectors = eigs(A, k=dim + 1, M=M, which='SM')
-        vec1 = eigenvectors[:, 1]
-        if dim >= 2:
-            vec2 = eigenvectors[:, 2]
-            if dim == 3:
-                vec3 = eigenvectors[:, 3]
-            else:
-                vec3 = np.zeros(len(eigenvectors[:, 1]))
-        else:
-            vec2 = np.zeros(len(eigenvectors[:, 1]))
-            vec3 = np.zeros(len(eigenvectors[:, 1]))
+        A = np.dot(A, M)
+        val, eigenvectors = np.linalg.eig(A)
     else:
         val, eigenvectors = np.linalg.eig(A)
-        eigenvectors = [item[1] for item in (sorted(list(zip(val, eigenvectors.transpose().tolist())),
-                         key=lambda k: k[0]))]
-        vec1 = eigenvectors[1]
-        if dim >= 2:
-            vec2 = eigenvectors[2]
-            if dim == 3:
-                vec3 = eigenvectors[3]
-            else:
-                vec3 = np.zeros(len(eigenvectors[1]))
+    
+    eigenvectors = [item[1] for item in (
+        sorted(
+            list(
+                zip(val,[eigenvectors[:,i] for i in range(len(eigenvectors))])
+                ),
+            key=lambda k: k[0]))]
+    vec1 = eigenvectors[1]
+    if dim >= 2:
+        vec2 = eigenvectors[2]
+        if dim == 3:
+            vec3 = eigenvectors[3]
         else:
-            vec2 = np.zeros(len(eigenvectors[1]))
             vec3 = np.zeros(len(eigenvectors[1]))
+    else:
+        vec2 = np.zeros(len(eigenvectors[1]))
+        vec3 = np.zeros(len(eigenvectors[1]))
     vecs = np.column_stack((vec1, vec2, vec3))
     vecs -= vecs.mean(axis=0)
     vecs[:, :dim] /= np.linalg.norm(vecs[:, :dim], axis=0)
