@@ -49,6 +49,7 @@ if __name__ == "__main__":
             masses, story = sa.simulated_annealing(len(aa_edges),
                                                    pr.fitness_single,
                                                    (network, data_coords[i]),
+                                                   n_iterations=10000,
                                                    normalized=True)
             sa_coords, sa_score = pr.get_perturbed_coordinates(
                 network, masses, data_coords[i], normalized=True)
@@ -63,6 +64,7 @@ if __name__ == "__main__":
             masses, story = sa.simulated_annealing(len(aa_edges),
                                                    pr.fitness_single,
                                                    (network, data_coords[i]),
+                                                   n_iterations=10000,
                                                    normalized=False)
             sa_coords, sa_score = pr.get_perturbed_coordinates(
                 network, masses, data_coords[i], normalized=False)
@@ -79,7 +81,7 @@ if __name__ == "__main__":
                     itertools.combinations_with_replacement(range(20), 2))),
                 pr.fitness_all,
                 ([network], [data_coords[i]], [aa_edges]),
-                n_iterations=100000,
+                n_iterations=10000,
                 normalized=True)
             sa_coords, sa_score = pr.get_global_perturbed_coordinates(
                 [network], [aa_edges], masses,
@@ -97,7 +99,7 @@ if __name__ == "__main__":
                     itertools.combinations_with_replacement(range(20), 2))),
                 pr.fitness_all,
                 ([network], [data_coords[i]], [aa_edges]),
-                n_iterations=100000,
+                n_iterations=10000,
                 normalized=False)
             sa_coords, sa_score = pr.get_global_perturbed_coordinates(
                 [network], [aa_edges], masses,
