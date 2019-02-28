@@ -24,6 +24,7 @@ if __name__ == "__main__":
     # Big Processing (is it a good idea?)
     for i in tqdm(range(len(names))):
         for threshold in tqdm(pr.THRESHOLDS):
+            str_thr = str(threshold).replace('.', '')
             network, aa_edges = pr.make_network_from_distance_matrix(
                 filtered_datasets[i], dist_matrices[i], threshold)
 
@@ -34,6 +35,8 @@ if __name__ == "__main__":
 
             with open("results/" + str_thr + "/" + names[i] + "_network.pkl",
                       'wb') as f:
+                print("results/" + str_thr + "/" + names[i] + "_network.pkl")
+                print(f)
                 pickle.dump((network, aa_edges), f)
             with open("results/" + str_thr + "/" + names[i] + "_spectral_basic.pkl",
                       'wb') as f:
@@ -43,6 +46,7 @@ if __name__ == "__main__":
 
         # Single Processing normalized
         for threshold in tqdm(pr.THRESHOLDS):
+            str_thr = str(threshold).replace('.', '')
             with open("results/" + str_thr + "/" + names[i] + "_network.pkl",
                       'rb') as f:
                 network, aa_edges = pickle.load(f)
@@ -58,6 +62,7 @@ if __name__ == "__main__":
 
         # Single Processing NOT normalized
         for threshold in tqdm(pr.THRESHOLDS):
+            str_thr = str(threshold).replace('.', '')
             with open("results/" + str_thr + "/" + names[i] + "_network.pkl",
                       'rb') as f:
                 network, aa_edges = pickle.load(f)
@@ -73,6 +78,7 @@ if __name__ == "__main__":
 
         # AA Processing normalized
         for threshold in tqdm(pr.THRESHOLDS):
+            str_thr = str(threshold).replace('.', '')
             with open("results/" + str_thr + "/" + names[i] + "_network.pkl",
                       'rb') as f:
                 network, aa_edges = pickle.load(f)
@@ -91,6 +97,7 @@ if __name__ == "__main__":
         
         # AA Processing not normalized
         for threshold in tqdm(pr.THRESHOLDS):
+            str_thr = str(threshold).replace('.', '')
             with open("results/" + str_thr + "/" + names[i] + "_network.pkl",
                       'rb') as f:
                 network, aa_edges = pickle.load(f)
