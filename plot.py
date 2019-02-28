@@ -6,7 +6,6 @@ import protein_reconstruction as pr
 import plot_protein as pp
 import rmsd
 import os
-import math
 import re
 import cv2
 
@@ -160,7 +159,7 @@ def unload_multiple(names):
 
 ######################################################################
 
-def stack_horizontally(header, *dirs):
+def stack_horizontally(header, dirs):
     images = [cv2.imread(header + d) for d in dirs]
     image = images[0]
     for i in range(1, len(images)):
@@ -168,7 +167,7 @@ def stack_horizontally(header, *dirs):
     return image
 
 
-def stack_vertically(header, *dirs):
+def stack_vertically(header, dirs):
     images = [cv2.imread(header + d) for d in dirs]
     image = images[0]
     for i in range(1, len(images)):
@@ -184,7 +183,7 @@ DPI = 300
 names = unload_names()
 proteins_dict = unload_proteins(names)
 single_dict = unload_single(names)
-aa_dict = unload_multiple(names)
+aa_dict = unload_aa(names)
 
 #%%
 # Plot Performance Story
@@ -196,29 +195,29 @@ for thresh in single_dict:
         ax.plot(single_dict[thresh][name]
                 ["rec_norm_story"], label="SA evolution")
         ax.axhline(single_dict[thresh][name]["rec_basic_norm_score"],
-                   label="Default spectral drawing")
+                   color='red', label="Default spectral drawing")
         ax.set_xlabel("# of iterations")
         ax.set_ylabel("Fitness [RMSD value]")
         ax.set_title("Performance History of " + name + ", Singular Edges" +
-                     "\\Thresh = " + str(thresh) + ", Normalized Laplacian")
+                     "\nThresh = " + str(thresh) + ", Normalized Laplacian")
         ax.legend()
         plt.tight_layout()
         plt.savefig("plots/story_plot_singular_" + name+
-                    "_norm_" + str_thresh  + ".jpg", dpi=DPI, pad_inches=0)
+                    "_norm_" + str_thresh  + ".png", dpi=DPI, pad_inches=0)
 
         fig, ax = plt.subplots()
         ax.plot(single_dict[thresh][name]
                 ["rec_no_norm_story"], label="SA evolution")
         ax.axhline(single_dict[thresh][name]["rec_basic_no_norm_score"],
-                   label="Default spectral drawing")
+                   color='red', label="Default spectral drawing")
         ax.set_xlabel("# of iterations")
         ax.set_ylabel("Fitness [RMSD value]")
         ax.set_title("Performance History of " + name + ", Singular Edges" +
-                     "\\Thresh = " + str(thresh) + ", Regular Laplacian")
+                     "\nThresh = " + str(thresh) + ", Regular Laplacian")
         ax.legend()
         plt.tight_layout()
         plt.savefig("plots/story_plot_singular_" + name +
-                    "_no_norm_" + str_thresh  + ".jpg", dpi=DPI, pad_inches=0)
+                    "_no_norm_" + str_thresh  + ".png", dpi=DPI, pad_inches=0)
 
 for thresh in aa_dict:
     str_thresh = str(thresh).replace(".", "")
@@ -227,36 +226,36 @@ for thresh in aa_dict:
         ax.plot(aa_dict[thresh][name]
                 ["rec_norm_story"], label="SA evolution")
         ax.axhline(aa_dict[thresh][name]["rec_basic_norm_score"],
-                   label="Default spectral drawing")
+                   color='red', label="Default spectral drawing")
         ax.set_xlabel("# of iterations")
         ax.set_ylabel("Fitness [RMSD value]")
         ax.set_title("Performance History of " + name + ", AA based" +
-                     "\\Thresh = " + str(thresh) + ", Normalized Laplacian")
+                     "\nThresh = " + str(thresh) + ", Normalized Laplacian")
         ax.legend()
         plt.tight_layout()
         plt.savefig("plots/story_plot_aa_based_" + name +
-                    "_norm_" + str_thresh  + ".jpg", dpi=DPI, pad_inches=0)
+                    "_norm_" + str_thresh  + ".png", dpi=DPI, pad_inches=0)
 
         fig, ax = plt.subplots()
         ax.plot(aa_dict[thresh][name]
                 ["rec_no_norm_story"], label="SA evolution")
         ax.axhline(aa_dict[thresh][name]["rec_basic_no_norm_score"],
-                   label="Default spectral drawing")
+                   color='red', label="Default spectral drawing")
         ax.set_xlabel("# of iterations")
         ax.set_ylabel("Fitness [RMSD value]")
         ax.set_title("Performance History of " + name + ", AA based" +
-                     "\\Thresh = " + str(thresh) + ", Regular Laplacian")
+                     "\nThresh = " + str(thresh) + ", Regular Laplacian")
         ax.legend()
         plt.tight_layout()
         plt.savefig("plots/story_plot_aa_based_" + name +
-                    "_no_norm_" + str_thresh  + ".jpg", dpi=DPI, pad_inches=0)
+                    "_no_norm_" + str_thresh  + ".png", dpi=DPI, pad_inches=0)
 
 #%%
 
 images = os.listdir("./plots")
 images = list(filter(lambda k: "story_plot" in k, images))
 
-for name in single_dict.items()[0]:
+for name in names:
     filter_name = list(filter(lambda k: name in k, images))
 
     filter_single = list(filter(lambda k: "_singular_" in k, filter_name))
@@ -291,7 +290,7 @@ for name in single_dict.items()[0]:
         (image_single_norm, image_single_no_norm,
          image_aa_norm, image_aa_no_norm), axis=0)
     
-    cv2.imwrite("combo/story_plot_" + name + ".jpg", image)
+    cv2.imwrite("combo/story_plot_" + name + ".png", image)
 
 #%%
 # Plot Scatter Plots
@@ -300,7 +299,7 @@ for thresh in single_dict:
     str_thresh = str(thresh).replace(".", "")
     for name in single_dict[thresh]:
         # Spectral Basic Normalized
-        fig, (axx, axy, axz) = plt.subplots(3, 1)
+        fig, (axx, axy, axz) = plt.subplots(3, 1, figsize=(8, 18))
         # X
         axx.scatter(
             proteins_dict[name]["coords"]["x"],
@@ -352,14 +351,14 @@ for thresh in single_dict:
         axz.set_xlabel("Original CA Coordinates [A.U.]")
         axz.set_ylabel("Reconstructed CA Coordinates [A.U.]")
         axz.set_title("Z Coordinate")
-        fig.suptitle(name + ", Basic\\Thresh = " +
+        fig.suptitle(name + ", Basic\nThresh = " +
                      str(thresh) + ", Normalized Laplacian")
-        plt.tight_layout()
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
         plt.savefig("plots/coord_plot_basic_" + name +
-                    "_norm_" + str_thresh  + ".jpg", dpi=DPI, pad_inches=0)
+                    "_norm_" + str_thresh  + ".png", dpi=DPI)
 
         # Spectral Basic Not Normalized
-        fig, (axx, axy, axz) = plt.subplots(3, 1)
+        fig, (axx, axy, axz) = plt.subplots(3, 1, figsize=(8, 18))
         # X
         axx.scatter(
             proteins_dict[name]["coords"]["x"],
@@ -411,14 +410,14 @@ for thresh in single_dict:
         axz.set_xlabel("Original CA Coordinates [A.U.]")
         axz.set_ylabel("Reconstructed CA Coordinates [A.U.]")
         axz.set_title("Z Coordinate")
-        fig.suptitle(name + ", Basic\\Thresh = " +
+        fig.suptitle(name + ", Basic\nThresh = " +
                      str(thresh) + ", Regular Laplacian")
-        plt.tight_layout()
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
         plt.savefig("plots/coord_plot_basic_" + name +
-                    "_no_norm_" + str_thresh  + ".jpg", dpi=DPI, pad_inches=0)
+                    "_no_norm_" + str_thresh  + ".png", dpi=DPI)
 
         # Single Normalized
-        fig, (axx, axy, axz) = plt.subplots(3, 1)
+        fig, (axx, axy, axz) = plt.subplots(3, 1, figsize=(8, 18))
         # X
         axx.scatter(
             proteins_dict[name]["coords"]["x"],
@@ -470,14 +469,14 @@ for thresh in single_dict:
         axz.set_xlabel("Original CA Coordinates [A.U.]")
         axz.set_ylabel("Reconstructed CA Coordinates [A.U.]")
         axz.set_title("Z Coordinate")
-        fig.suptitle(name + ", Singular Edges\\Thresh = " +
+        fig.suptitle(name + ", Singular Edges\nThresh = " +
                      str(thresh) + ", Normalized Laplacian")
-        plt.tight_layout()
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
         plt.savefig("plots/coord_plot_singular_" + name +
-                    "_norm_" + str_thresh  + ".jpg", dpi=DPI, pad_inches=0)
+                    "_norm_" + str_thresh  + ".png", dpi=DPI)
 
         # Single Not Normalized
-        fig, (axx, axy, axz) = plt.subplots(3, 1)
+        fig, (axx, axy, axz) = plt.subplots(3, 1, figsize=(8, 18))
         # X
         axx.scatter(
             proteins_dict[name]["coords"]["x"],
@@ -529,11 +528,11 @@ for thresh in single_dict:
         axz.set_xlabel("Original CA Coordinates [A.U.]")
         axz.set_ylabel("Reconstructed CA Coordinates [A.U.]")
         axz.set_title("Z Coordinate")
-        fig.suptitle(name + ", Singular Edges\\Thresh = " +
+        fig.suptitle(name + ", Singular Edges\nThresh = " +
                      str(thresh) + ", Regular Laplacian")
-        plt.tight_layout()
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
         plt.savefig("plots/coord_plot_singular_" + name +
-                    "_no_norm_" + str_thresh  + ".jpg", dpi=DPI, pad_inches=0)
+                    "_no_norm_" + str_thresh  + ".png", dpi=DPI)
 
 ##############################################################################
 
@@ -541,7 +540,7 @@ for thresh in aa_dict:
     str_thresh = str(thresh).replace(".", "")
     for name in aa_dict[thresh]:
         # AA approach Normalized
-        fig, (axx, axy, axz) = plt.subplots(3, 1)
+        fig, (axx, axy, axz) = plt.subplots(3, 1, figsize=(8, 18))
         # X
         axx.scatter(
             proteins_dict[name]["coords"]["x"],
@@ -593,14 +592,14 @@ for thresh in aa_dict:
         axz.set_xlabel("Original CA Coordinates [A.U.]")
         axz.set_ylabel("Reconstructed CA Coordinates [A.U.]")
         axz.set_title("Z Coordinate")
-        fig.suptitle(name + ", AA approach\\Thresh = " +
+        fig.suptitle(name + ", AA approach\nThresh = " +
                      str(thresh) + ", Normalized Laplacian")
-        plt.tight_layout()
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
         plt.savefig("plots/coord_plot_aa_based_" + name +
-                    "_norm_" + str_thresh  + ".jpg", dpi=DPI, pad_inches=0)
+                    "_norm_" + str_thresh  + ".png", dpi=DPI)
 
         # AA approach Not Normalized
-        fig, (axx, axy, axz) = plt.subplots(3, 1)
+        fig, (axx, axy, axz) = plt.subplots(3, 1, figsize=(8, 18))
         # X
         axx.scatter(
             proteins_dict[name]["coords"]["x"],
@@ -652,18 +651,18 @@ for thresh in aa_dict:
         axz.set_xlabel("Original CA Coordinates [A.U.]")
         axz.set_ylabel("Reconstructed CA Coordinates [A.U.]")
         axz.set_title("Z Coordinate")
-        fig.suptitle(name + ", Singular Edges\\Thresh = " +
+        fig.suptitle(name + ", Singular Edges\nThresh = " +
                      str(thresh) + ", Regular Laplacian")
-        plt.tight_layout()
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
         plt.savefig("plots/coord_plot_aa_based_" + name +
-                    "_no_norm_" + str_thresh  + ".jpg", dpi=DPI, pad_inches=0)
+                    "_no_norm_" + str_thresh  + ".png", dpi=DPI)
 
 #%%
 
 images = os.listdir("./plots")
 images = list(filter(lambda k: "coord_plot" in k, images))
 
-for name in single_dict.items()[0]:
+for name in names:
     filter_name = list(filter(lambda k: name in k, images))
 
     filter_single = list(filter(lambda k: "_singular_" in k, filter_name))
@@ -698,7 +697,7 @@ for name in single_dict.items()[0]:
         (image_single_norm, image_single_no_norm,
          image_aa_norm, image_aa_no_norm), axis=0)
 
-    cv2.imwrite("combo/coord_plot_" + name + ".jpg", image)
+    cv2.imwrite("combo/coord_plot_" + name + ".png", image)
 
 
 #%%
@@ -712,10 +711,10 @@ for thresh in single_dict:
             proteins_dict[name]["dist_matrix"],
             single_dict[thresh][name]["rec_basic_norm_coords"],
             True,
-            title=(name + ", Basic\\Thresh = " +
+            title=(name + ", Basic\nThresh = " +
                    str(thresh) + ", Normalized Laplacian"),
-            savepath=("plots/3D_plot_basic_" + str_thresh
-                      + "_norm_" + name + ".jpg"),
+            savepath=("plots/3D_plot_basic_" + name
+                      + "_norm_" + str_thresh + ".png"),
             showfig=False)
 
         pp.plot_protein_network(
@@ -723,10 +722,10 @@ for thresh in single_dict:
             proteins_dict[name]["dist_matrix"],
             single_dict[thresh][name]["rec_basic_no_norm_coords"],
             True,
-            title=(name + ", Basic\\Thresh = " +
+            title=(name + ", Basic\nThresh = " +
                    str(thresh) + ", Regular Laplacian"),
-            savepath=("plots/3D_plot_basic_" + str_thresh
-                      + "_no_norm_" + name + ".jpg"),
+            savepath=("plots/3D_plot_basic_" + name
+                      + "_no_norm_" + str_thresh + ".png"),
             showfig=False)
         
         pp.plot_protein_network(
@@ -734,10 +733,10 @@ for thresh in single_dict:
             proteins_dict[name]["dist_matrix"],
             single_dict[thresh][name]["rec_norm_coords"],
             True,
-            title=(name + ", Singular Edges\\Thresh = " +
+            title=(name + ", Singular Edges\nThresh = " +
                    str(thresh) + ", Normalized Laplacian"),
-            savepath=("plots/3D_plot_singular_" + str_thresh
-                      + "_norm_" + name + ".jpg"),
+            savepath=("plots/3D_plot_singular_" + name
+                      + "_norm_" + str_thresh + ".png"),
             showfig=False)
 
         pp.plot_protein_network(
@@ -745,10 +744,10 @@ for thresh in single_dict:
             proteins_dict[name]["dist_matrix"],
             single_dict[thresh][name]["rec_no_norm_coords"],
             True,
-            title=(name + ", Singular Edges\\Thresh = " +
+            title=(name + ", Singular Edges\nThresh = " +
                    str(thresh) + ", Regular Laplacian"),
-            savepath=("plots/3D_plot_singular_" + str_thresh
-                      + "_no_norm_" + name + ".jpg"),
+            savepath=("plots/3D_plot_singular_" + name
+                      + "_no_norm_" + str_thresh + ".png"),
             showfig=False)
 
         pp.plot_protein_network(
@@ -756,10 +755,10 @@ for thresh in single_dict:
             proteins_dict[name]["dist_matrix"],
             aa_dict[thresh][name]["rec_norm_coords"],
             True,
-            title=(name + ", AA Approach\\Thresh = " +
+            title=(name + ", AA Approach\nThresh = " +
                    str(thresh) + ", Normalized Laplacian"),
-            savepath=("plots/3D_plot_aa_based_" + str_thresh
-                      + "_norm_" + name + ".jpg"),
+            savepath=("plots/3D_plot_aa_based_" + name
+                      + "_norm_" + str_thresh + ".png"),
             showfig=False)
 
         pp.plot_protein_network(
@@ -767,10 +766,10 @@ for thresh in single_dict:
             proteins_dict[name]["dist_matrix"],
             aa_dict[thresh][name]["rec_no_norm_coords"],
             True,
-            title=(name + ", AA Approach\\Thresh = " +
+            title=(name + ", AA Approach\nThresh = " +
                    str(thresh) + ", Regular Laplacian"),
-            savepath=("plots/3D_plot_aa_based_" + str_thresh
-                      + "_no_norm_" + name + ".jpg"),
+            savepath=("plots/3D_plot_aa_based_" + name
+                      + "_no_norm_" + str_thresh + ".png"),
             showfig=False)
 
 #%%
@@ -778,7 +777,7 @@ for thresh in single_dict:
 images = os.listdir("./plots")
 images = list(filter(lambda k: "3D_plot" in k, images))
 
-for name in single_dict.items()[0]:
+for name in names:
     filter_name = list(filter(lambda k: name in k, images))
 
     filter_single = list(filter(lambda k: "_singular_" in k, filter_name))
@@ -813,6 +812,6 @@ for name in single_dict.items()[0]:
         (image_single_norm, image_single_no_norm,
          image_aa_norm, image_aa_no_norm), axis=0)
 
-    cv2.imwrite("combo/3D_plot_" + name + ".jpg", image)
+    cv2.imwrite("combo/3D_plot_" + name + ".png", image)
 
 #%%

@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import protein_reconstruction as pr
 import rmsd
@@ -67,7 +68,7 @@ def plot_protein_network(coords_original,
         ax.scatter(coords_modified["x"],
                    coords_modified["y"],
                    coords_modified["z"],
-                   label="SD Perturbato, RMSD = {:.6f}".format(score_modified),
+                   label="SD Perturbato,\nRMSD = {:.6f}".format(score_modified),
                    c="C1")
         for edge in list(plt_network.edges):
             ax.plot((coords_modified.iloc[edge[0]]["x"],
@@ -87,7 +88,7 @@ def plot_protein_network(coords_original,
         ax.scatter(coords_spectral_basic["x"],
                    coords_spectral_basic["y"],
                    coords_spectral_basic["z"],
-                   label="SD Originale, RMSD = {:.6f}".format(score_spectral_basic),
+                   label="SD Originale,\nRMSD = {:.6f}".format(score_spectral_basic),
                    c="C2")
         for edge in list(plt_network.edges):
             ax.plot((coords_spectral_basic.iloc[edge[0]]["x"],
@@ -97,7 +98,7 @@ def plot_protein_network(coords_original,
                     (coords_spectral_basic.iloc[edge[0]]["z"],
                      coords_spectral_basic.iloc[edge[1]]["z"]),
                     c="green", alpha=0.4)
-    ax.legend()
+    ax.legend(loc='right', fontsize='small')
     ax.set_xlabel("X $[\\AA]$")
     ax.set_ylabel("Y $[\\AA]$")
     ax.set_zlabel("Z $[\\AA]$")
@@ -108,9 +109,9 @@ def plot_protein_network(coords_original,
         plt.show()
     if savepath != "":
         ax.view_init(view_thet, view_phi)
+        plt.tight_layout()
         plt.savefig(savepath, dpi=300)
         plt.clf()
-    fig.close()
 
 
 def rotational_protein_movie(coords_original,
