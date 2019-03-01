@@ -935,3 +935,76 @@ for name in names:
          image_aa_norm, image_aa_no_norm), axis=0)
 
     cv2.imwrite("combo/AA_masses_" + name + ".png", image)
+
+#%%
+# MEGA MOVIE
+os.system("mkdir movie\\foo")
+
+for thresh in single_dict:
+    str_thresh = str(thresh).replace(".", "")
+    for name in single_dict[thresh]:
+        pp.rotational_protein_movie(
+            proteins_dict[name]["coords"],
+            proteins_dict[name]["dist_matrix"],
+            single_dict[thresh][name]["rec_basic_norm_coords"],
+            True,
+            title=(name + ", Basic\nThresh = " +
+                   str(thresh) + ", Normalized Laplacian"),
+            filename=("3D_plot_basic_" + name
+                      + "_norm_" + str_thresh),
+            )
+
+        pp.rotational_protein_movie(
+            proteins_dict[name]["coords"],
+            proteins_dict[name]["dist_matrix"],
+            single_dict[thresh][name]["rec_basic_no_norm_coords"],
+            True,
+            title=(name + ", Basic\nThresh = " +
+                   str(thresh) + ", Regular Laplacian"),
+            filename=("3D_plot_basic_" + name
+                      + "_no_norm_" + str_thresh),
+            )
+
+        pp.rotational_protein_movie(
+            proteins_dict[name]["coords"],
+            proteins_dict[name]["dist_matrix"],
+            single_dict[thresh][name]["rec_norm_coords"],
+            True,
+            title=(name + ", Singular Edges\nThresh = " +
+                   str(thresh) + ", Normalized Laplacian"),
+            filename=("3D_plot_singular_" + name
+                      + "_norm_" + str_thresh),
+            )
+
+        pp.rotational_protein_movie(
+            proteins_dict[name]["coords"],
+            proteins_dict[name]["dist_matrix"],
+            single_dict[thresh][name]["rec_no_norm_coords"],
+            True,
+            title=(name + ", Singular Edges\nThresh = " +
+                   str(thresh) + ", Regular Laplacian"),
+            filename=("3D_plot_singular_" + name
+                      + "_no_norm_" + str_thresh),
+            )
+
+        pp.rotational_protein_movie(
+            proteins_dict[name]["coords"],
+            proteins_dict[name]["dist_matrix"],
+            aa_dict[thresh][name]["rec_norm_coords"],
+            True,
+            title=(name + ", AA Approach\nThresh = " +
+                   str(thresh) + ", Normalized Laplacian"),
+            filename=("3D_plot_aa_based_" + name
+                      + "_norm_" + str_thresh),
+            )
+
+        pp.rotational_protein_movie(
+            proteins_dict[name]["coords"],
+            proteins_dict[name]["dist_matrix"],
+            aa_dict[thresh][name]["rec_no_norm_coords"],
+            True,
+            title=(name + ", AA Approach\nThresh = " +
+                   str(thresh) + ", Regular Laplacian"),
+            filename=("3D_plot_aa_based_" + name
+                      + "_no_norm_" + str_thresh),
+            )
