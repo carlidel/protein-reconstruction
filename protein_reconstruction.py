@@ -84,6 +84,24 @@ def mask_AA_contact_map(weight_list, edge_aa_list):
     return masked_AA
 
 
+def make_AA_statistics(weight_list, edge_aa_list):
+    N = len(AA_LIST)
+    data = [[[] for i in range(N)] for j in range(N)]
+    for i, weigth in enumerate(weight_list):
+        data[edge_aa_list[i][0]][edge_aa_list[i][1]].append(weigth)
+        data[edge_aa_list[i][1]][edge_aa_list[i][0]].append(weigth)
+    for i in range(N):
+        for j in range(N):
+            data[i][j] = np.array(data[i][j])
+    average = [[np.average(data[i][j]) for j in range(N)] for i in range(N)]
+    std_dev = [[np.std(data[i][j]) for j in range(N)] for i in range(N)]
+    np.nan_to_num(average, copy=False)
+    np.nan_to_num(std_dev, copy=False)
+    average[average == 0] = -1
+    std_dev[average == 0] = -1
+    return data, average, std_dev
+
+
 def get_perturbed_coordinates(network, masses, target_coordinates,
     normalized=True):
     return fitness_single(masses, (network, target_coordinates), normalized)
