@@ -815,3 +815,123 @@ for name in names:
     cv2.imwrite("combo/3D_plot_" + name + ".png", image)
 
 #%%
+# AA stats
+
+for thresh in aa_dict:
+    str_thresh = str(thresh).replace(".", "")
+    for name in aa_dict[thresh]:
+        matrix = pr.mask_AA_contact_map(
+            aa_dict[thresh][name]["rec_norm_masses"],
+            aa_dict[thresh][name]["aa_edges"]
+        )
+        fig, ax = plt.subplots()
+        ax.imshow(matrix, cmap='viridis', aspect='equal',
+                  vmin=1, vmax=100, origin='upper')
+        ax.set_xticks(pr.AA_LIST)
+        ax.set_yticks(pr.AA_LIST)
+        plt.colorbar(ax=ax)
+        for (i, j), label in np.ndenumerate(matrix):
+            ax.text(i, j, str(label), ha='center', va='center')
+        ax.set_title("AA masses of " + name + ", AA based" +
+                     "\nThresh = " + str(thresh) + ", Normalized Laplacian")
+        plt.tight_layout()
+        plt.savefig("plots/AA_masses_plot_aa_based_" + name +
+                    "_norm_" + str_thresh + ".png", dpi=DPI, pad_inches=0)
+
+        matrix = pr.mask_AA_contact_map(
+            aa_dict[thresh][name]["rec_no_norm_masses"],
+            aa_dict[thresh][name]["aa_edges"]
+        )
+        fig, ax = plt.subplots()
+        ax.imshow(matrix, cmap='viridis', aspect='equal',
+                  vmin=1, vmax=100, origin='upper')
+        ax.set_xticks(pr.AA_LIST)
+        ax.set_yticks(pr.AA_LIST)
+        plt.colorbar(ax=ax)
+        for (i, j), label in np.ndenumerate(matrix):
+            ax.text(i, j, str(label), ha='center', va='center')
+        ax.set_title("AA masses of " + name + ", AA based" +
+                     "\nThresh = " + str(thresh) + ", Regular Laplacian")
+        plt.tight_layout()
+        plt.savefig("plots/AA_masses_plot_aa_based_" + name +
+                    "_no_norm_" + str_thresh + ".png", dpi=DPI, pad_inches=0)
+
+        data, average, std_dev = pr.make_AA_statistics(
+            single_dict[thresh][name]["rec_norm_masses"],
+            single_dict[thresh][name]["aa_edges"]
+        )
+        fig, ax = plt.subplots()
+        ax.imshow(average,  cmap='viridis', aspect='equal',
+                  vmin=1, vmax=100, origin='upper')
+        ax.set_xticks(pr.AA_LIST)
+        ax.set_yticks(pr.AA_LIST)
+        plt.colorbar(ax=ax)
+        for (i, j), label in np.ndenumerate(average):
+            string = str(label) + "\n+/- " + str(std_dev[i][j])
+            ax.text(i, j, label, ha='center', va='center')
+        ax.set_title("AA masses of " + name + ", Singular Edges" +
+                     "\nThresh = " + str(thresh) + ", Normalized Laplacian")
+        plt.tight_layout()
+        plt.savefig("plots/AA_masses_plot_singular_" + name +
+                    "_norm_" + str_thresh + ".png", dpi=DPI, pad_inches=0)
+
+        data, average, std_dev = pr.make_AA_statistics(
+            single_dict[thresh][name]["rec_no_norm_masses"],
+            single_dict[thresh][name]["aa_edges"]
+        )
+        fig, ax = plt.subplots()
+        ax.imshow(average,  cmap='viridis', aspect='equal',
+                  vmin=1, vmax=100, origin='upper')
+        ax.set_xticks(pr.AA_LIST)
+        ax.set_yticks(pr.AA_LIST)
+        plt.colorbar(ax=ax)
+        for (i, j), label in np.ndenumerate(average):
+            string = str(label) + "\n+/- " + str(std_dev[i][j])
+            ax.text(i, j, label, ha='center', va='center')
+        ax.set_title("AA masses of " + name + ", Singular Edges" +
+                     "\nThresh = " + str(thresh) + ", Regular Laplacian")
+        plt.tight_layout()
+        plt.savefig("plots/AA_masses_plot_singular_" + name +
+                    "_no_norm_" + str_thresh + ".png", dpi=DPI, pad_inches=0)
+
+#%%
+
+images = os.listdir("./plots")
+images = list(filter(lambda k: "AA_masses" in k, images))
+
+for name in names:
+    filter_name = list(filter(lambda k: name in k, images))
+
+    filter_single = list(filter(lambda k: "_singular_" in k, filter_name))
+
+    filter_single_norm = list(
+        filter(lambda k: "_no_norm_" not in k, filter_single))
+    filter_single_norm.sort(key=lambda k: int(
+        re.search("(\d*)\.", k).group(1)))
+    image_single_norm = stack_horizontally("plots/", filter_single_norm)
+
+    filter_single_no_norm = list(
+        filter(lambda k: "_no_norm_" in k, filter_single))
+    filter_single_no_norm.sort(key=lambda k: int(
+        re.search("(\d*)\.", k).group(1)))
+    image_single_no_norm = stack_horizontally("plots/", filter_single_no_norm)
+
+    filter_aa = list(filter(lambda k: "_aa_based_" in k, filter_name))
+
+    filter_aa_norm = list(
+        filter(lambda k: "_no_norm_" not in k, filter_aa))
+    filter_aa_norm.sort(key=lambda k: int(
+        re.search("(\d*)\.", k).group(1)))
+    image_aa_norm = stack_horizontally("plots/", filter_aa_norm)
+
+    filter_aa_no_norm = list(
+        filter(lambda k: "_no_norm_" in k, filter_aa))
+    filter_aa_no_norm.sort(key=lambda k: int(
+        re.search("(\d*)\.", k).group(1)))
+    image_aa_no_norm = stack_horizontally("plots/", filter_aa_no_norm)
+
+    image = np.concatenate(
+        (image_single_norm, image_single_no_norm,
+         image_aa_norm, image_aa_no_norm), axis=0)
+
+    cv2.imwrite("combo/AA_masses_" + name + ".png", image)
