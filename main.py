@@ -35,8 +35,6 @@ if __name__ == "__main__":
 
             with open("results/" + str_thr + "/" + names[i] + "_network.pkl",
                       'wb') as f:
-                print("results/" + str_thr + "/" + names[i] + "_network.pkl")
-                print(f)
                 pickle.dump((network, aa_edges), f)
             with open("results/" + str_thr + "/" + names[i] + "_spectral_basic.pkl",
                       'wb') as f:
