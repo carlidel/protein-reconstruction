@@ -125,8 +125,7 @@ def rotational_protein_movie(coords_original,
                              filename="",
                              view_phi=30,
                              n_frames=360):
-    os.system("mkdir foo")
-    os.system("del \"foo\\foo*.jpg\"")
+    os.system("del \"movie\\foo\\foo*.jpg\"")
     for i, angle in enumerate(np.linspace(0, 360, n_frames, endpoint=False)):
         print(str(i) + "/" + str(n_frames))
         plot_protein_network(coords_original,
@@ -137,9 +136,9 @@ def rotational_protein_movie(coords_original,
                              modified_flag,
                              drawing_threshold,
                              title,
-                             ("foo\\foo" + str(i).zfill(5) + ".jpg"),
+                             ("movie\\foo\\foo" + str(i).zfill(5) + ".jpg"),
                              False,
                              view_phi,
                              angle)
-    os.system("ffmpeg -y -i \"foo\\foo%05d.jpg\" "
-              + "img\\" + filename + ".mp4")
+    os.system("ffmpeg -y -i \"movie\\foo\\foo%05d.jpg\" "
+              + "movie\\" + filename + ".mp4")
