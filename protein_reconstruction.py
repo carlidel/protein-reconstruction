@@ -75,10 +75,9 @@ def mask_AA_contact_map(weight_list, edge_aa_list):
     combo_list = (list(itertools.combinations_with_replacement(range(N), 2)))
     assert len(weight_list) == len(combo_list)
     mask = np.zeros((N, N), dtype=bool)
-    for edges in edge_aa_list:
-        for edge in edges:
-            mask[edge[0], edge[1]] = True
-            mask[edge[1], edge[0]] = True
+    for edge in edge_aa_list:
+        mask[edge[0], edge[1]] = True
+        mask[edge[1], edge[0]] = True
     masked_AA = create_AA_contact_map(weight_list) * mask
     masked_AA[masked_AA == 0] = -1
     return masked_AA
@@ -93,8 +92,10 @@ def make_AA_statistics(weight_list, edge_aa_list):
     for i in range(N):
         for j in range(N):
             data[i][j] = np.array(data[i][j])
-    average = [[np.average(data[i][j]) for j in range(N)] for i in range(N)]
-    std_dev = [[np.std(data[i][j]) for j in range(N)] for i in range(N)]
+    average = np.array([[np.average(data[i][j])
+                         for j in range(N)] for i in range(N)])
+    std_dev = np.array([[np.std(data[i][j]) for j in range(N)]
+                        for i in range(N)])
     np.nan_to_num(average, copy=False)
     np.nan_to_num(std_dev, copy=False)
     average[average == 0] = -1
