@@ -8,6 +8,7 @@ import rmsd
 import os
 import re
 import cv2
+from tqdm import tqdm
 
 ## TODO:::BREAK FREE FROM NETWORKX
 
@@ -299,19 +300,25 @@ for thresh in single_dict:
     str_thresh = str(thresh).replace(".", "")
     for name in single_dict[thresh]:
         # Spectral Basic Normalized
+        coords = pd.DataFrame(
+            rmsd.kabsch_rotate(
+                single_dict[thresh][name]["rec_basic_norm_coords"].values,
+                proteins_dict[name]["coords"].values),
+            columns=["x", "y", "z"]
+        )
         fig, (axx, axy, axz) = plt.subplots(3, 1, figsize=(8, 18))
         # X
         axx.scatter(
             proteins_dict[name]["coords"]["x"],
-            single_dict[thresh][name]["rec_basic_norm_coords"]["x"])
+            coords["x"])
         points = [
             min(
                 proteins_dict[name]["coords"]["x"].min(),
-                single_dict[thresh][name]["rec_basic_norm_coords"]["x"].min()
+                coords["x"].min()
             ),
             max(
                 proteins_dict[name]["coords"]["x"].max(),
-                single_dict[thresh][name]["rec_basic_norm_coords"]["x"].max()
+                coords["x"].max()
             )]
         axx.plot(points, points, "--", alpha=0.6)
         axx.set_xlabel("Original CA Coordinates [A.U.]")
@@ -320,15 +327,15 @@ for thresh in single_dict:
         # Y
         axy.scatter(
             proteins_dict[name]["coords"]["y"],
-            single_dict[thresh][name]["rec_basic_norm_coords"]["y"])
+            coords["y"])
         points = [
             min(
                 proteins_dict[name]["coords"]["y"].min(),
-                single_dict[thresh][name]["rec_basic_norm_coords"]["y"].min()
+                coords["y"].min()
             ),
             max(
                 proteins_dict[name]["coords"]["y"].max(),
-                single_dict[thresh][name]["rec_basic_norm_coords"]["y"].max()
+                coords["y"].max()
             )]
         axy.plot(points, points, "--", alpha=0.6)
         axy.set_xlabel("Original CA Coordinates [A.U.]")
@@ -337,15 +344,15 @@ for thresh in single_dict:
         # Z
         axz.scatter(
             proteins_dict[name]["coords"]["z"],
-            single_dict[thresh][name]["rec_basic_norm_coords"]["z"])
+            coords["z"])
         points = [
             min(
                 proteins_dict[name]["coords"]["z"].min(),
-                single_dict[thresh][name]["rec_basic_norm_coords"]["z"].min()
+                coords["z"].min()
             ),
             max(
                 proteins_dict[name]["coords"]["z"].max(),
-                single_dict[thresh][name]["rec_basic_norm_coords"]["z"].max()
+                coords["z"].max()
             )]
         axz.plot(points, points, "--", alpha=0.6)
         axz.set_xlabel("Original CA Coordinates [A.U.]")
@@ -358,19 +365,25 @@ for thresh in single_dict:
                     "_norm_" + str_thresh  + ".png", dpi=DPI)
 
         # Spectral Basic Not Normalized
+        coords = pd.DataFrame(
+            rmsd.kabsch_rotate(
+                single_dict[thresh][name]["rec_basic_no_norm_coords"].values,
+                proteins_dict[name]["coords"].values),
+            columns=["x", "y", "z"]
+        )
         fig, (axx, axy, axz) = plt.subplots(3, 1, figsize=(8, 18))
         # X
         axx.scatter(
             proteins_dict[name]["coords"]["x"],
-            single_dict[thresh][name]["rec_basic_no_norm_coords"]["x"])
+            coords["x"])
         points = [
             min(
                 proteins_dict[name]["coords"]["x"].min(),
-                single_dict[thresh][name]["rec_basic_no_norm_coords"]["x"].min()
+                coords["x"].min()
             ),
             max(
                 proteins_dict[name]["coords"]["x"].max(),
-                single_dict[thresh][name]["rec_basic_no_norm_coords"]["x"].max()
+                coords["x"].max()
             )]
         axx.plot(points, points, "--", alpha=0.6)
         axx.set_xlabel("Original CA Coordinates [A.U.]")
@@ -379,15 +392,15 @@ for thresh in single_dict:
         # Y
         axy.scatter(
             proteins_dict[name]["coords"]["y"],
-            single_dict[thresh][name]["rec_basic_no_norm_coords"]["y"])
+            coords["y"])
         points = [
             min(
                 proteins_dict[name]["coords"]["y"].min(),
-                single_dict[thresh][name]["rec_basic_no_norm_coords"]["y"].min()
+                coords["y"].min()
             ),
             max(
                 proteins_dict[name]["coords"]["y"].max(),
-                single_dict[thresh][name]["rec_basic_no_norm_coords"]["y"].max()
+                coords["y"].max()
             )]
         axy.plot(points, points, "--", alpha=0.6)
         axy.set_xlabel("Original CA Coordinates [A.U.]")
@@ -396,15 +409,15 @@ for thresh in single_dict:
         # Z
         axz.scatter(
             proteins_dict[name]["coords"]["z"],
-            single_dict[thresh][name]["rec_basic_no_norm_coords"]["z"])
+            coords["z"])
         points = [
             min(
                 proteins_dict[name]["coords"]["z"].min(),
-                single_dict[thresh][name]["rec_basic_no_norm_coords"]["z"].min()
+                coords["z"].min()
             ),
             max(
                 proteins_dict[name]["coords"]["z"].max(),
-                single_dict[thresh][name]["rec_basic_no_norm_coords"]["z"].max()
+                coords["z"].max()
             )]
         axz.plot(points, points, "--", alpha=0.6)
         axz.set_xlabel("Original CA Coordinates [A.U.]")
@@ -417,19 +430,25 @@ for thresh in single_dict:
                     "_no_norm_" + str_thresh  + ".png", dpi=DPI)
 
         # Single Normalized
+        coords = pd.DataFrame(
+            rmsd.kabsch_rotate(
+                single_dict[thresh][name]["rec_norm_coords"].values,
+                proteins_dict[name]["coords"].values),
+            columns=["x", "y", "z"]
+        )
         fig, (axx, axy, axz) = plt.subplots(3, 1, figsize=(8, 18))
         # X
         axx.scatter(
             proteins_dict[name]["coords"]["x"],
-            single_dict[thresh][name]["rec_norm_coords"]["x"])
+            coords["x"])
         points = [
             min(
                 proteins_dict[name]["coords"]["x"].min(),
-                single_dict[thresh][name]["rec_norm_coords"]["x"].min()
+                coords["x"].min()
             ),
             max(
                 proteins_dict[name]["coords"]["x"].max(),
-                single_dict[thresh][name]["rec_norm_coords"]["x"].max()
+                coords["x"].max()
             )]
         axx.plot(points, points, "--", alpha=0.6)
         axx.set_xlabel("Original CA Coordinates [A.U.]")
@@ -438,15 +457,15 @@ for thresh in single_dict:
         # Y
         axy.scatter(
             proteins_dict[name]["coords"]["y"],
-            single_dict[thresh][name]["rec_norm_coords"]["y"])
+            coords["y"])
         points = [
             min(
                 proteins_dict[name]["coords"]["y"].min(),
-                single_dict[thresh][name]["rec_norm_coords"]["y"].min()
+                coords["y"].min()
             ),
             max(
                 proteins_dict[name]["coords"]["y"].max(),
-                single_dict[thresh][name]["rec_norm_coords"]["y"].max()
+                coords["y"].max()
             )]
         axy.plot(points, points, "--", alpha=0.6)
         axy.set_xlabel("Original CA Coordinates [A.U.]")
@@ -455,15 +474,15 @@ for thresh in single_dict:
         # Z
         axz.scatter(
             proteins_dict[name]["coords"]["z"],
-            single_dict[thresh][name]["rec_norm_coords"]["z"])
+            coords["z"])
         points = [
             min(
                 proteins_dict[name]["coords"]["z"].min(),
-                single_dict[thresh][name]["rec_norm_coords"]["z"].min()
+                coords["z"].min()
             ),
             max(
                 proteins_dict[name]["coords"]["z"].max(),
-                single_dict[thresh][name]["rec_norm_coords"]["z"].max()
+                coords["z"].max()
             )]
         axz.plot(points, points, "--", alpha=0.6)
         axz.set_xlabel("Original CA Coordinates [A.U.]")
@@ -476,19 +495,25 @@ for thresh in single_dict:
                     "_norm_" + str_thresh  + ".png", dpi=DPI)
 
         # Single Not Normalized
+        coords = pd.DataFrame(
+            rmsd.kabsch_rotate(
+                single_dict[thresh][name]["rec_no_norm_coords"].values,
+                proteins_dict[name]["coords"].values),
+            columns=["x", "y", "z"]
+        )
         fig, (axx, axy, axz) = plt.subplots(3, 1, figsize=(8, 18))
         # X
         axx.scatter(
             proteins_dict[name]["coords"]["x"],
-            single_dict[thresh][name]["rec_no_norm_coords"]["x"])
+            coords["x"])
         points = [
             min(
                 proteins_dict[name]["coords"]["x"].min(),
-                single_dict[thresh][name]["rec_no_norm_coords"]["x"].min()
+                coords["x"].min()
             ),
             max(
                 proteins_dict[name]["coords"]["x"].max(),
-                single_dict[thresh][name]["rec_no_norm_coords"]["x"].max()
+                coords["x"].max()
             )]
         axx.plot(points, points, "--", alpha=0.6)
         axx.set_xlabel("Original CA Coordinates [A.U.]")
@@ -497,15 +522,15 @@ for thresh in single_dict:
         # Y
         axy.scatter(
             proteins_dict[name]["coords"]["y"],
-            single_dict[thresh][name]["rec_no_norm_coords"]["y"])
+            coords["y"])
         points = [
             min(
                 proteins_dict[name]["coords"]["y"].min(),
-                single_dict[thresh][name]["rec_no_norm_coords"]["y"].min()
+                coords["y"].min()
             ),
             max(
                 proteins_dict[name]["coords"]["y"].max(),
-                single_dict[thresh][name]["rec_no_norm_coords"]["y"].max()
+                coords["y"].max()
             )]
         axy.plot(points, points, "--", alpha=0.6)
         axy.set_xlabel("Original CA Coordinates [A.U.]")
@@ -514,15 +539,15 @@ for thresh in single_dict:
         # Z
         axz.scatter(
             proteins_dict[name]["coords"]["z"],
-            single_dict[thresh][name]["rec_no_norm_coords"]["z"])
+            coords["z"])
         points = [
             min(
                 proteins_dict[name]["coords"]["z"].min(),
-                single_dict[thresh][name]["rec_no_norm_coords"]["z"].min()
+                coords["z"].min()
             ),
             max(
                 proteins_dict[name]["coords"]["z"].max(),
-                single_dict[thresh][name]["rec_no_norm_coords"]["z"].max()
+                coords["z"].max()
             )]
         axz.plot(points, points, "--", alpha=0.6)
         axz.set_xlabel("Original CA Coordinates [A.U.]")
@@ -540,19 +565,25 @@ for thresh in aa_dict:
     str_thresh = str(thresh).replace(".", "")
     for name in aa_dict[thresh]:
         # AA approach Normalized
+        coords = pd.DataFrame(
+            rmsd.kabsch_rotate(
+                aa_dict[thresh][name]["rec_norm_coords"].values,
+                proteins_dict[name]["coords"].values),
+            columns=["x", "y", "z"]
+        )
         fig, (axx, axy, axz) = plt.subplots(3, 1, figsize=(8, 18))
         # X
         axx.scatter(
             proteins_dict[name]["coords"]["x"],
-            aa_dict[thresh][name]["rec_norm_coords"]["x"])
+            coords["x"])
         points = [
             min(
                 proteins_dict[name]["coords"]["x"].min(),
-                aa_dict[thresh][name]["rec_norm_coords"]["x"].min()
+                coords["x"].min()
             ),
             max(
                 proteins_dict[name]["coords"]["x"].max(),
-                aa_dict[thresh][name]["rec_norm_coords"]["x"].max()
+                coords["x"].max()
             )]
         axx.plot(points, points, "--", alpha=0.6)
         axx.set_xlabel("Original CA Coordinates [A.U.]")
@@ -561,15 +592,15 @@ for thresh in aa_dict:
         # Y
         axy.scatter(
             proteins_dict[name]["coords"]["y"],
-            aa_dict[thresh][name]["rec_norm_coords"]["y"])
+            coords["y"])
         points = [
             min(
                 proteins_dict[name]["coords"]["y"].min(),
-                aa_dict[thresh][name]["rec_norm_coords"]["y"].min()
+                coords["y"].min()
             ),
             max(
                 proteins_dict[name]["coords"]["y"].max(),
-                aa_dict[thresh][name]["rec_norm_coords"]["y"].max()
+                coords["y"].max()
             )]
         axy.plot(points, points, "--", alpha=0.6)
         axy.set_xlabel("Original CA Coordinates [A.U.]")
@@ -578,15 +609,15 @@ for thresh in aa_dict:
         # Z
         axz.scatter(
             proteins_dict[name]["coords"]["z"],
-            aa_dict[thresh][name]["rec_norm_coords"]["z"])
+            coords["z"])
         points = [
             min(
                 proteins_dict[name]["coords"]["z"].min(),
-                aa_dict[thresh][name]["rec_norm_coords"]["z"].min()
+                coords["z"].min()
             ),
             max(
                 proteins_dict[name]["coords"]["z"].max(),
-                aa_dict[thresh][name]["rec_norm_coords"]["z"].max()
+                coords["z"].max()
             )]
         axz.plot(points, points, "--", alpha=0.6)
         axz.set_xlabel("Original CA Coordinates [A.U.]")
@@ -599,19 +630,25 @@ for thresh in aa_dict:
                     "_norm_" + str_thresh  + ".png", dpi=DPI)
 
         # AA approach Not Normalized
+        coords = pd.DataFrame(
+            rmsd.kabsch_rotate(
+                aa_dict[thresh][name]["rec_no_norm_coords"].values,
+                proteins_dict[name]["coords"].values),
+            columns=["x", "y", "z"]
+        )
         fig, (axx, axy, axz) = plt.subplots(3, 1, figsize=(8, 18))
         # X
         axx.scatter(
             proteins_dict[name]["coords"]["x"],
-            aa_dict[thresh][name]["rec_no_norm_coords"]["x"])
+            coords["x"])
         points = [
             min(
                 proteins_dict[name]["coords"]["x"].min(),
-                aa_dict[thresh][name]["rec_no_norm_coords"]["x"].min()
+                coords["x"].min()
             ),
             max(
                 proteins_dict[name]["coords"]["x"].max(),
-                aa_dict[thresh][name]["rec_no_norm_coords"]["x"].max()
+                coords["x"].max()
             )]
         axx.plot(points, points, "--", alpha=0.6)
         axx.set_xlabel("Original CA Coordinates [A.U.]")
@@ -620,15 +657,15 @@ for thresh in aa_dict:
         # Y
         axy.scatter(
             proteins_dict[name]["coords"]["y"],
-            aa_dict[thresh][name]["rec_no_norm_coords"]["y"])
+            coords["y"])
         points = [
             min(
                 proteins_dict[name]["coords"]["y"].min(),
-                aa_dict[thresh][name]["rec_no_norm_coords"]["y"].min()
+                coords["y"].min()
             ),
             max(
                 proteins_dict[name]["coords"]["y"].max(),
-                aa_dict[thresh][name]["rec_no_norm_coords"]["y"].max()
+                coords["y"].max()
             )]
         axy.plot(points, points, "--", alpha=0.6)
         axy.set_xlabel("Original CA Coordinates [A.U.]")
@@ -637,15 +674,15 @@ for thresh in aa_dict:
         # Z
         axz.scatter(
             proteins_dict[name]["coords"]["z"],
-            aa_dict[thresh][name]["rec_no_norm_coords"]["z"])
+            coords["z"])
         points = [
             min(
                 proteins_dict[name]["coords"]["z"].min(),
-                aa_dict[thresh][name]["rec_no_norm_coords"]["z"].min()
+                coords["z"].min()
             ),
             max(
                 proteins_dict[name]["coords"]["z"].max(),
-                aa_dict[thresh][name]["rec_no_norm_coords"]["z"].max()
+                coords["z"].max()
             )]
         axz.plot(points, points, "--", alpha=0.6)
         axz.set_xlabel("Original CA Coordinates [A.U.]")
@@ -703,9 +740,9 @@ for name in names:
 #%%
 # 3D plot
 
-for thresh in single_dict:
+for thresh in tqdm(single_dict):
     str_thresh = str(thresh).replace(".", "")
-    for name in single_dict[thresh]:
+    for name in tqdm(single_dict[thresh]):
         pp.plot_protein_network(
             proteins_dict[name]["coords"],
             proteins_dict[name]["dist_matrix"],
@@ -780,6 +817,20 @@ images = list(filter(lambda k: "3D_plot" in k, images))
 for name in names:
     filter_name = list(filter(lambda k: name in k, images))
 
+    filter_basic = list(filter(lambda k: "_basic_" in k, filter_name))
+
+    filter_basic_norm = list(
+        filter(lambda k: "_no_norm_" not in k, filter_basic))
+    filter_basic_norm.sort(key=lambda k: int(
+        re.search("(\d*)\.", k).group(1)))
+    image_basic_norm = stack_horizontally("plots/", filter_basic_norm)
+
+    filter_basic_no_norm = list(
+        filter(lambda k: "_no_norm_" in k, filter_basic))
+    filter_basic_no_norm.sort(key=lambda k: int(
+        re.search("(\d*)\.", k).group(1)))
+    image_basic_no_norm = stack_horizontally("plots/", filter_basic_no_norm)
+
     filter_single = list(filter(lambda k: "_singular_" in k, filter_name))
 
     filter_single_norm = list(
@@ -809,14 +860,16 @@ for name in names:
     image_aa_no_norm = stack_horizontally("plots/", filter_aa_no_norm)
 
     image = np.concatenate(
-        (image_single_norm, image_single_no_norm,
-         image_aa_norm, image_aa_no_norm), axis=0)
+        (image_basic_norm, image_single_norm, 
+         image_aa_norm, image_basic_no_norm,
+         image_single_no_norm, image_aa_no_norm), axis=0)
 
     cv2.imwrite("combo/3D_plot_" + name + ".png", image)
 
 #%%
 # AA stats
-
+figsize = (8, 8)
+fontsize = "x-small"
 for thresh in aa_dict:
     str_thresh = str(thresh).replace(".", "")
     for name in aa_dict[thresh]:
@@ -824,14 +877,18 @@ for thresh in aa_dict:
             aa_dict[thresh][name]["rec_norm_masses"],
             aa_dict[thresh][name]["aa_edges"]
         )
-        fig, ax = plt.subplots()
-        ax.imshow(matrix, cmap='viridis', aspect='equal',
-                  vmin=1, vmax=100, origin='upper')
-        ax.set_xticks(pr.AA_LIST)
-        ax.set_yticks(pr.AA_LIST)
-        plt.colorbar(ax=ax)
+        fig, ax = plt.subplots(figsize=figsize)
+        im = ax.imshow(matrix, cmap='viridis', aspect='equal',
+                       vmin=1, vmax=100, origin='upper')
+        ax.set_xticks(np.arange(0, len(pr.AA_LIST)))
+        ax.set_yticks(np.arange(0, len(pr.AA_LIST)))
+        ax.set_xticklabels(pr.AA_LIST)
+        ax.set_yticklabels(pr.AA_LIST)
+        #fig.colorbar(im)
         for (i, j), label in np.ndenumerate(matrix):
-            ax.text(i, j, str(label), ha='center', va='center')
+            if label != -1:
+                ax.text(i, j, int(label), ha='center',
+                        va='center', fontsize=fontsize)
         ax.set_title("AA masses of " + name + ", AA based" +
                      "\nThresh = " + str(thresh) + ", Normalized Laplacian")
         plt.tight_layout()
@@ -842,14 +899,18 @@ for thresh in aa_dict:
             aa_dict[thresh][name]["rec_no_norm_masses"],
             aa_dict[thresh][name]["aa_edges"]
         )
-        fig, ax = plt.subplots()
-        ax.imshow(matrix, cmap='viridis', aspect='equal',
-                  vmin=1, vmax=100, origin='upper')
-        ax.set_xticks(pr.AA_LIST)
-        ax.set_yticks(pr.AA_LIST)
-        plt.colorbar(ax=ax)
+        fig, ax = plt.subplots(figsize=figsize)
+        im = ax.imshow(matrix, cmap='viridis', aspect='equal',
+                       vmin=1, vmax=100, origin='upper')
+        ax.set_xticks(np.arange(0, len(pr.AA_LIST)))
+        ax.set_yticks(np.arange(0, len(pr.AA_LIST)))
+        ax.set_xticklabels(pr.AA_LIST)
+        ax.set_yticklabels(pr.AA_LIST)
+        #fig.colorbar(im)
         for (i, j), label in np.ndenumerate(matrix):
-            ax.text(i, j, str(label), ha='center', va='center')
+            if label != -1:
+              ax.text(i, j, int(label), ha='center',
+                      va='center', fontsize=fontsize)
         ax.set_title("AA masses of " + name + ", AA based" +
                      "\nThresh = " + str(thresh) + ", Regular Laplacian")
         plt.tight_layout()
@@ -860,15 +921,20 @@ for thresh in aa_dict:
             single_dict[thresh][name]["rec_norm_masses"],
             single_dict[thresh][name]["aa_edges"]
         )
-        fig, ax = plt.subplots()
-        ax.imshow(average,  cmap='viridis', aspect='equal',
-                  vmin=1, vmax=100, origin='upper')
-        ax.set_xticks(pr.AA_LIST)
-        ax.set_yticks(pr.AA_LIST)
-        plt.colorbar(ax=ax)
+        fig, ax = plt.subplots(figsize=figsize)
+        im = ax.imshow(average,  cmap='viridis', aspect='equal',
+                       vmin=1, vmax=100, origin='upper')
+        ax.set_xticks(np.arange(0, len(pr.AA_LIST)))
+        ax.set_yticks(np.arange(0, len(pr.AA_LIST)))
+        ax.set_xticklabels(pr.AA_LIST)
+        ax.set_yticklabels(pr.AA_LIST)
+        #plt.colorbar(im)
         for (i, j), label in np.ndenumerate(average):
-            string = str(label) + "\n+/- " + str(std_dev[i][j])
-            ax.text(i, j, label, ha='center', va='center')
+            if label != -1:
+                string = "{0:.1f}".format(
+                    label) + "\n± " + "{0:.1f}".format(std_dev[i][j])
+                ax.text(i, j, string, ha='center',
+                        va='center', fontsize=fontsize)
         ax.set_title("AA masses of " + name + ", Singular Edges" +
                      "\nThresh = " + str(thresh) + ", Normalized Laplacian")
         plt.tight_layout()
@@ -879,15 +945,20 @@ for thresh in aa_dict:
             single_dict[thresh][name]["rec_no_norm_masses"],
             single_dict[thresh][name]["aa_edges"]
         )
-        fig, ax = plt.subplots()
-        ax.imshow(average,  cmap='viridis', aspect='equal',
-                  vmin=1, vmax=100, origin='upper')
-        ax.set_xticks(pr.AA_LIST)
-        ax.set_yticks(pr.AA_LIST)
-        plt.colorbar(ax=ax)
+        fig, ax = plt.subplots(figsize=figsize)
+        im = ax.imshow(average,  cmap='viridis', aspect='equal',
+                       vmin=1, vmax=100, origin='upper')
+        ax.set_xticks(np.arange(0, len(pr.AA_LIST)))
+        ax.set_yticks(np.arange(0, len(pr.AA_LIST)))
+        ax.set_xticklabels(pr.AA_LIST)
+        ax.set_yticklabels(pr.AA_LIST)
+        #plt.colorbar(im)
         for (i, j), label in np.ndenumerate(average):
-            string = str(label) + "\n+/- " + str(std_dev[i][j])
-            ax.text(i, j, label, ha='center', va='center')
+            if label != -1:
+                string = "{0:.1f}".format(
+                    label) + "\n± " + "{0:.1f}".format(std_dev[i][j])
+                ax.text(i, j, string, ha='center',
+                        va='center', fontsize=fontsize)
         ax.set_title("AA masses of " + name + ", Singular Edges" +
                      "\nThresh = " + str(thresh) + ", Regular Laplacian")
         plt.tight_layout()
@@ -937,7 +1008,7 @@ for name in names:
     cv2.imwrite("combo/AA_masses_" + name + ".png", image)
 
 #%%
-# MEGA MOVIE
+# MEGA MOVIE (AT YOUR RISK AND DANGER)
 os.system("mkdir movie\\foo")
 
 for thresh in single_dict:
