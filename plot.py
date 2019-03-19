@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
+import matplotlib
 import pickle
 import protein_reconstruction as pr
 import plot_protein as pp
@@ -10,7 +12,6 @@ import re
 import cv2
 from tqdm import tqdm
 
-## TODO:::BREAK FREE FROM NETWORKX
 
 def unload_names():
     with open('processed_pdb/names.pkl', 'rb') as f:
@@ -157,6 +158,28 @@ def unload_multiple(names):
                     ))
         
         return multiple
+
+
+
+def make_comparing_AA_plot(ax,
+                           dist_list_ideal,
+                           dist_list_reconstructed,
+                           title,
+                           maximum,
+                           minimum):
+    ax.hist(dist_list_reconstructed, range=(minimum, maximum),
+            density=False, bins=12,
+            lw=2, fc=(0, 0, 1, 0.5), edgecolor='blue',
+            label="Reconstructed")
+    ax.hist(dist_list_ideal, range=(minimum, maximum),
+             density=False, bins=12,
+             lw=2, fc=(1, 0, 0, 0.5), edgecolor='red',
+             color='red', label="Target")
+    ax.set_ylabel("# Occurences")
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+    ax.set_xlabel("Distance [Normalized Units]")
+    ax.legend()       
+    ax.set_title(title)
 
 ######################################################################
 
@@ -878,7 +901,10 @@ for thresh in aa_dict:
             aa_dict[thresh][name]["aa_edges"]
         )
         fig, ax = plt.subplots(figsize=figsize)
-        im = ax.imshow(matrix, cmap='viridis', aspect='equal',
+        masked = np.ma.masked_where(matrix == -1, matrix)
+        cmap = matplotlib.cm.get_cmap('viridis')
+        cmap.set_bad(color="black")
+        im = ax.imshow(masked, cmap=cmap, aspect='equal',
                        vmin=1, vmax=100, origin='upper')
         ax.set_xticks(np.arange(0, len(pr.AA_LIST)))
         ax.set_yticks(np.arange(0, len(pr.AA_LIST)))
@@ -900,7 +926,10 @@ for thresh in aa_dict:
             aa_dict[thresh][name]["aa_edges"]
         )
         fig, ax = plt.subplots(figsize=figsize)
-        im = ax.imshow(matrix, cmap='viridis', aspect='equal',
+        masked = np.ma.masked_where(matrix == -1, matrix)
+        cmap = matplotlib.cm.get_cmap('viridis')
+        cmap.set_bad(color="black")
+        im = ax.imshow(masked, cmap=cmap, aspect='equal',
                        vmin=1, vmax=100, origin='upper')
         ax.set_xticks(np.arange(0, len(pr.AA_LIST)))
         ax.set_yticks(np.arange(0, len(pr.AA_LIST)))
@@ -922,7 +951,10 @@ for thresh in aa_dict:
             single_dict[thresh][name]["aa_edges"]
         )
         fig, ax = plt.subplots(figsize=figsize)
-        im = ax.imshow(average,  cmap='viridis', aspect='equal',
+        masked = np.ma.masked_where(average == -1, average)
+        cmap = matplotlib.cm.get_cmap('viridis')
+        cmap.set_bad(color="black")
+        im = ax.imshow(masked, cmap=cmap, aspect='equal',
                        vmin=1, vmax=100, origin='upper')
         ax.set_xticks(np.arange(0, len(pr.AA_LIST)))
         ax.set_yticks(np.arange(0, len(pr.AA_LIST)))
@@ -946,7 +978,10 @@ for thresh in aa_dict:
             single_dict[thresh][name]["aa_edges"]
         )
         fig, ax = plt.subplots(figsize=figsize)
-        im = ax.imshow(average,  cmap='viridis', aspect='equal',
+        masked = np.ma.masked_where(average == -1, average)
+        cmap = matplotlib.cm.get_cmap('viridis')
+        cmap.set_bad(color="black")
+        im = ax.imshow(masked, cmap=cmap, aspect='equal',
                        vmin=1, vmax=100, origin='upper')
         ax.set_xticks(np.arange(0, len(pr.AA_LIST)))
         ax.set_yticks(np.arange(0, len(pr.AA_LIST)))
@@ -1006,6 +1041,63 @@ for name in names:
          image_aa_norm, image_aa_no_norm), axis=0)
 
     cv2.imwrite("combo/AA_masses_" + name + ".png", image)
+
+#%%
+# Weight distribution.
+
+for name in names:
+    os.system("mkdir combo\\atlas_distributions\\" + name)
+#%%
+
+for thresh in reversed(list(single_dict)):
+    str_thresh = str(thresh).replace(".", "")
+    for name in single_dict[thresh]:
+        aa_weights, _, _ = pr.make_AA_statistics(
+            single_dict[thresh][name]["rec_norm_masses"],
+            single_dict[thresh][name]["aa_edges"]
+        )
+
+        aa_distances_reconstructed, max_rec, min_rec = pr.make_original_AA_dist(
+            single_dict[thresh][name]["network"],
+            pd.DataFrame(
+                rmsd.kabsch_rotate(
+                    single_dict[thresh][name]["rec_norm_coords"].values,
+                    proteins_dict[name]["coords"].values),
+                columns=['x', 'y', 'z']),
+            single_dict[thresh][name]["aa_edges"]
+        )
+
+        aa_distances_ideal, max_ideal, min_ideal = pr.make_original_AA_dist(
+            single_dict[thresh][name]["network"],
+            proteins_dict[name]["coords"],
+            single_dict[thresh][name]["aa_edges"]
+        )
+        
+        maximum = max(max_ideal, max_rec)
+        minimum = min(min_ideal, min_rec)
+        
+        fig, axes = plt.subplots(20, 20, figsize=(10*10, 8*10))
+        for i, line in enumerate(axes):
+            for j, ax in enumerate(line):
+                #print(i, j)
+                if len(aa_distances_ideal[i][j]) != 0:
+                    make_comparing_AA_plot(
+                        ax,
+                        aa_distances_ideal[i][j],
+                        aa_distances_reconstructed[i][j],
+                        pr.AA_LIST[i] + " and " + pr.AA_LIST[j] + " connections.",
+                        maximum,
+                        minimum
+                    )
+                else:
+                    ax.axis('off')
+        fig.suptitle("Protein: " + name + "; Thresh = " + str(thresh) + "Å; Normalized Laplacian", fontsize=50)
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+        print(thresh, name)
+        plt.savefig("combo/atlas_distributions/" + name + "/AA_atlas_" + name + "_norm_" + str_thresh + ".png", dpi=150)
+        print("SAVED!")
+        plt.close('all')
+
 
 #%%
 # MEGA MOVIE (AT YOUR RISK AND DANGER)

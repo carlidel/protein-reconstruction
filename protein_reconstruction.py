@@ -103,6 +103,28 @@ def make_AA_statistics(weight_list, edge_aa_list):
     return data, average, std_dev
 
 
+def make_original_AA_dist(network, database, edge_aa_list):
+    N = len(AA_LIST)
+    data = [[[] for i in range(N)] for j in range(N)]
+    maximum = 0.0
+    minimum = np.Infinity
+    for i, edge in enumerate(network.edges()):
+        distance = (
+            np.sqrt(
+                np.square(database.iloc[edge[0]]["x"]
+                          - database.iloc[edge[1]]["x"])
+                + np.square(database.iloc[edge[0]]["y"] 
+                            - database.iloc[edge[1]]["y"])
+                + np.square(database.iloc[edge[0]]["z"]
+                            - database.iloc[edge[1]]["z"])
+            ))
+        data[edge_aa_list[i][0]][edge_aa_list[i][1]].append(distance)
+        data[edge_aa_list[i][1]][edge_aa_list[i][0]].append(distance)
+        maximum = max(maximum, distance)
+        minimum = min(minimum, distance)
+    return data, maximum, minimum
+
+
 def get_perturbed_coordinates(network, masses, target_coordinates,
     normalized=True):
     return fitness_single(masses, (network, target_coordinates), normalized)
