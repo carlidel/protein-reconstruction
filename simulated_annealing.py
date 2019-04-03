@@ -6,6 +6,8 @@ import os
 from network_tools import *
 from tqdm import tqdm
 
+TQDM_FLAG = True
+
 """
 Better implementation of a Simulated Annealing classificator.
 With 'better' I mean more generic so that it is capable to work with any
@@ -59,7 +61,7 @@ def simulated_annealing(n_masses,
     #                     n_iterations,
     #                     endpoint=False)
     fitness_history = []
-    for i in tqdm(range(len(T_list))):
+    for i in tqdm(range(len(T_list)), disable=TQDM_FLAG):
         # Creation and evaluation
         if first_time:
             masses = ((max_mass - min_mass) * (individual / value_resolution)

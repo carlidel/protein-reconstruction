@@ -16,7 +16,7 @@ AA_LIST = ["ALA", "ARG", "ASN", "ASP", "CYS", "GLN", "GLU", "GLY", "HIS",
            "ILE", "LEU", "LYS", "MET", "PHE", "PRO", "SER", "THR", "TRP",
            "TYR", "VAL"]
 
-THRESHOLDS = [6.0, 10.0, 12.0, 16.0, 20.0]
+THRESHOLDS = [6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0]
 
 
 def make_basic_network_from_distance_matrix(distance_matrix, threshold):
@@ -167,6 +167,28 @@ def fitness_single(masses, fitness_parameters, normalized=True):
     return (guess_coordinates,
             rmsd.kabsch_rmsd(guess_coordinates.values,
                              target_coordinates.values))
+
+
+def fitness_single_correlation(masses, fitness_parameters, normalized=True):
+    protein_network = fitness_parameters[0]
+    target_coordinates = fitness_parameters[1]
+    network = nt.modify_edges_weitghts(protein_network, masses)
+    if normalized:
+        guess_coordinates = nt.get_spectral_coordinates(
+            nx.normalized_laplacian_matrix(network).toarray().astype(np.float),
+            dim=3)
+    else:
+        guess_coordinates = nt.get_spectral_coordinates(
+            nx.laplacian_matrix(network).toarray().astype(np.float),
+            dim=3)
+    guess_coordinates = pd.DataFrame(rmsd.kabsch_rotate(
+        guess_coordinates.values, target_coordinates.values),
+        columns=['x', 'y', 'z'])
+    corr = (guess_coordinates['x'].corr(target_coordinates['x'])
+            + guess_coordinates['y'].corr(target_coordinates['y'])
+            + guess_coordinates['z'].corr(target_coordinates['z']))
+    return (guess_coordinates, -corr)
+
 
 
 def fitness_all(masses, fitness_parameters, normalized=True):

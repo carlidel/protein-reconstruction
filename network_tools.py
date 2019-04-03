@@ -64,8 +64,7 @@ def get_spectral_coordinates(A=np.zeros(1),
     dim : choose how many dimentions to consider (must be [1,3])
     '''
     if M.any():
-        A = np.dot(A, M)
-        val, eigenvectors = np.linalg.eig(A)
+        val, eigenvectors = np.linalg.eig(np.dot(A, M))
     else:
         val, eigenvectors = np.linalg.eig(A)
     

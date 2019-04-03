@@ -136,7 +136,10 @@ if __name__ == "__main__":
     with open("processed_pdb" + "/names.pkl", 'wb') as f:
         pickle.dump(names, f)
     
+    namefile = open("processed_pdb/names.txt", 'w')
+
     for i, name in enumerate(names):
+        namefile.write(name + "\n")
         _ = filter_dataset_CA(name, datasets[i])
         _ = make_coordinate_dataset_CA(name, datasets[i])
         _ = process_distance_matrix_CA(name, datasets[i])
