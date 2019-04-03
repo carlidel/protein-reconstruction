@@ -5,6 +5,7 @@ import os
 import pickle
 import itertools
 from tqdm import tqdm
+from scipy.spatial.distance import squareform, pdist
 
 """
 Simple .pdb parser for collecting spatial info of atoms and such. 
@@ -77,6 +78,14 @@ def make_coordinate_dataset_CA(protein_name, dataset):
     return data_coords
 
 
+def process_distance_matrix_CA_scipy(protein_name, dataset):
+    filtered_dataset = filter_dataset_CA(protein_name, dataset, False)
+    dist_matrix = squareform(pdist(filtered_dataset[["x", "y", "z"]], metric='euclidean'))
+    with open("processed_pdb/" + protein_name + "_CA_dist.pkl", "wb") as f:
+        pickle.dump(dist_matrix, f)
+    return dist_matrix
+
+
 def process_distance_matrix_CA(protein_name, dataset):
     filtered_dataset = filter_dataset_CA(protein_name, dataset, False)
     N = len(filtered_dataset)
@@ -143,4 +152,4 @@ if __name__ == "__main__":
         namefile.write(name + "\n")
         _ = filter_dataset_CA(name, datasets[i])
         _ = make_coordinate_dataset_CA(name, datasets[i])
-        _ = process_distance_matrix_CA(name, datasets[i])
+        _ = process_distance_matrix_CA_scipy(name, datasets[i])
