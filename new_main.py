@@ -72,3 +72,5 @@ if __name__ == "__main__":
                     network, masses, data_coords[i], normalized=True)
                 with open("results/" + str_thr + "/single_norm_v2/" + names[i] + "_single_norm_v2.pkl", 'wb') as f:
                     pickle.dump((masses, sa_coords, sa_score, story), f)
+        
+            print("Finisced with {}".format(name))

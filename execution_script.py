@@ -9,6 +9,7 @@ def call_proc(cmd):
     p = subprocess.Popen(shlex.split(
         cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate()
+    print(out, file=open('progress.txt', 'a'))
     return (out, err)
 
 
