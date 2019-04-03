@@ -115,7 +115,8 @@ def unload_all(directory="processed_pdb"):
 
 
 if __name__ == "__main__":
-    os.system("mkdir processed_pdb")
+    if not os.path.exists("processed_pdb"):
+        os.makedirs("processed_pdb")
     if len(sys.argv) == 1:
         directory = "pdb_files"
     else:
