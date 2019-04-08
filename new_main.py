@@ -5,6 +5,7 @@ import itertools
 from tqdm import tqdm
 import protein_reconstruction as pr
 import simulated_annealing as sa
+import pandas as pd
 
 TQDM_FLAG = False
 
@@ -32,9 +33,14 @@ if __name__ == "__main__":
                     filtered_datasets[i], dist_matrices[i], threshold)
 
                 sb_normed_coords, sb_normed_score = pr.get_spectral_basic_coordinates(
-                    network, data_coords[i], True)
+                    network, data_coords[i].values, True)
                 sb_not_normed_coords, sb_not_normed_score = pr.get_spectral_basic_coordinates(
-                    network, data_coords[i], False)
+                    network, data_coords[i].values, False)
+
+                sb_normed_coords = pd.DataFrame(
+                    sb_normed_coords, columns=['x', 'y', 'z'])
+                sb_not_normed_coords = pd.DataFrame(
+                    sb_not_normed_coords, columns=['x', 'y', 'z'])
 
                 with open("results/" + str_thr + "/" + names[i] + "_network.pkl", 'wb') as f:
                     pickle.dump((network, aa_edges), f)
@@ -51,11 +57,14 @@ if __name__ == "__main__":
                 masses, story = sa.simulated_annealing(len(aa_edges),
                                                        pr.fitness_single,
                                                        (network,
-                                                        data_coords[i]),
+                                                        data_coords[i].values),
                                                        n_iterations=10000,
                                                        normalized=True)
                 sa_coords, sa_score = pr.get_perturbed_coordinates(
-                    network, masses, data_coords[i], normalized=True)
+                    network, masses, data_coords[i].values, normalized=True)
+
+                sa_coords = pd.DataFrame(sa_coords, columns=['x', 'y', 'z'])
+
                 with open("results/" + str_thr + "/single_norm/" + names[i] + "_single_norm.pkl", 'wb') as f:
                     pickle.dump((masses, sa_coords, sa_score, story), f)
 
@@ -67,11 +76,14 @@ if __name__ == "__main__":
                 masses, story = sa.simulated_annealing(len(aa_edges),
                                                        pr.fitness_single_correlation,
                                                        (network,
-                                                        data_coords[i]),
+                                                        data_coords[i].values),
                                                        n_iterations=10000,
                                                        normalized=True)
                 sa_coords, sa_score = pr.get_perturbed_coordinates(
-                    network, masses, data_coords[i], normalized=True)
+                    network, masses, data_coords[i].values, normalized=True)
+
+                sa_coords = pd.DataFrame(sa_coords, columns=['x', 'y', 'z'])
+                
                 with open("results/" + str_thr + "/single_norm_v2/" + names[i] + "_single_norm_v2.pkl", 'wb') as f:
                     pickle.dump((masses, sa_coords, sa_score, story), f)
         
