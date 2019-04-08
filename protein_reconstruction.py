@@ -148,7 +148,13 @@ def get_spectral_basic_coordinates(network, target_coordinates,
             nx.laplacian_matrix(network).astype(np.float)),
         dim=3)
     return (basic_coords,
-            rmsd.kabsch_rmsd(basic_coords, target_coordinates))
+            rmsd.kabsch_rmsd(basic_coords, target_coordinates),
+            (np.corrcoef(basic_coords[:, 0],
+                         target_coordinates[:, 0])[1, 0]
+             + np.corrcoef(basic_coords[:, 1],
+                           target_coordinates[:, 1])[1, 0]
+             + np.corrcoef(basic_coords[:, 2],
+                           target_coordinates[:, 2])[1, 0]))
 
 # Fitness Functions
 
