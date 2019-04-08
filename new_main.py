@@ -10,6 +10,8 @@ TQDM_FLAG = False
 
 if __name__ == "__main__":
 
+    print("Using graph-tool.")
+
     # Load Data
     names, datasets, filtered_datasets, data_coords, dist_matrices = (
         pr.unload_all())
