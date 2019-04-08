@@ -43,9 +43,9 @@ def refresh_network_weights(network_list,
     for i, network in enumerate(network_list):
         edge_list = list(network_list[i].edges())
         if normalized:
-            laplacian = nx.normalized_laplacian_matrix(network).toarray().astype(np.float)
+            laplacian = nx.normalized_laplacian_matrix(network).astype(np.float)
         else:
-            laplacian = nx.laplacian_matrix(network).todense().astype(np.float)
+            laplacian = nx.laplacian_matrix(network).astype(np.float)
         for j, edge in enumerate(edge_aa_list[i]):
             # Change weigth
             laplacian[edge_list[j][0], edge_list[j][1]] = (
@@ -136,19 +136,19 @@ def get_global_perturbed_coordinates(networks, edge_aa_list, aa_masses,
     fitness_parameters = (networks, target_coordinates, edge_aa_list)
     coords, _ = fitness_all(aa_masses, fitness_parameters, normalized)
     for i, coord in enumerate(coords):
-        scores.append(rmsd.kabsch_rmsd(coord.values,
-                                       target_coordinates[i].values))
+        scores.append(rmsd.kabsch_rmsd(coord,
+                                       target_coordinates[i]))
     return coords, scores
 
 
 def get_spectral_basic_coordinates(network, target_coordinates,
     normalized=True):
     basic_coords = nt.get_spectral_coordinates(
-        (nx.normalized_laplacian_matrix(network).toarray().astype(np.float) if normalized else
-            nx.laplacian_matrix(network).toarray().astype(np.float)),
+        (nx.normalized_laplacian_matrix(network).astype(np.float) if normalized else
+            nx.laplacian_matrix(network).astype(np.float)),
         dim=3)
     return (basic_coords,
-            rmsd.kabsch_rmsd(basic_coords.values, target_coordinates.values))
+            rmsd.kabsch_rmsd(basic_coords, target_coordinates))
 
 # Fitness Functions
 
@@ -158,15 +158,15 @@ def fitness_single(masses, fitness_parameters, normalized=True):
     network = nt.modify_edges_weitghts(protein_network, masses)
     if normalized:
         guess_coordinates = nt.get_spectral_coordinates(
-            nx.normalized_laplacian_matrix(network).toarray().astype(np.float),
+            nx.normalized_laplacian_matrix(network).astype(np.float),
             dim=3)
     else:
         guess_coordinates = nt.get_spectral_coordinates(
-            nx.laplacian_matrix(network).toarray().astype(np.float),
+            nx.laplacian_matrix(network).astype(np.float),
             dim=3)
     return (guess_coordinates,
-            rmsd.kabsch_rmsd(guess_coordinates.values,
-                             target_coordinates.values))
+            rmsd.kabsch_rmsd(guess_coordinates,
+                             target_coordinates))
 
 
 def fitness_single_correlation(masses, fitness_parameters, normalized=True):
@@ -175,18 +175,20 @@ def fitness_single_correlation(masses, fitness_parameters, normalized=True):
     network = nt.modify_edges_weitghts(protein_network, masses)
     if normalized:
         guess_coordinates = nt.get_spectral_coordinates(
-            nx.normalized_laplacian_matrix(network).toarray().astype(np.float),
+            nx.normalized_laplacian_matrix(network).astype(np.float),
             dim=3)
     else:
         guess_coordinates = nt.get_spectral_coordinates(
-            nx.laplacian_matrix(network).toarray().astype(np.float),
+            nx.laplacian_matrix(network).astype(np.float),
             dim=3)
-    guess_coordinates = pd.DataFrame(rmsd.kabsch_rotate(
-        guess_coordinates.values, target_coordinates.values),
-        columns=['x', 'y', 'z'])
-    corr = (guess_coordinates['x'].corr(target_coordinates['x'])
-            + guess_coordinates['y'].corr(target_coordinates['y'])
-            + guess_coordinates['z'].corr(target_coordinates['z']))
+    guess_coordinates = rmsd.kabsch_rotate(
+        guess_coordinates, target_coordinates)
+    corr = (np.corrcoef(guess_coordinates[:, 0],
+                        target_coordinates[:, 0])[1, 0]
+            + np.corrcoef(guess_coordinates[:, 1],
+                          target_coordinates[:, 1])[1, 0]
+            + np.corrcoef(guess_coordinates[:, 2],
+                          target_coordinates[:, 2])[1, 0])
     return (guess_coordinates, -corr)
 
 
@@ -206,7 +208,7 @@ def fitness_all(masses, fitness_parameters, normalized=True):
         guess_coordinates = nt.get_spectral_coordinates(
             laplacian_list[i],
             dim=3)
-        fitness += rmsd.kabsch_rmsd(guess_coordinates.values,
-                                    target_coordinates_list[i].values)
+        fitness += rmsd.kabsch_rmsd(guess_coordinates,
+                                    target_coordinates_list[i])
         guesses.append(guess_coordinates)
     return guesses, fitness

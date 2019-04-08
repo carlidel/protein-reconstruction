@@ -6,6 +6,7 @@ import numpy as np
 import networkx as nx
 import os
 from scipy.sparse.linalg import eigs
+import scipy
 
 """
 Wrapping of networkx, functions and visualization tools for working with
@@ -64,16 +65,14 @@ def get_spectral_coordinates(A=np.zeros(1),
     dim : choose how many dimentions to consider (must be [1,3])
     '''
     if M.any():
-        val, eigenvectors = np.linalg.eig(np.dot(A, M))
+        val, eigenvectors = scipy.sparse.linalg.eigsh(
+            scipy.sparse.csr_matrix(np.dot(A.toarray(), M)),
+            k=4, sigma=0, which='LM')
     else:
-        val, eigenvectors = np.linalg.eig(A)
-    
-    eigenvectors = [item[1] for item in (
-        sorted(
-            list(
-                zip(val,[eigenvectors[:,i] for i in range(len(eigenvectors))])
-                ),
-            key=lambda k: k[0]))]
+        val, eigenvectors = scipy.sparse.linalg.eigsh(
+            A, k=4, sigma=0, which='LM')
+
+    eigenvectors = eigenvectors.transpose()
     vec1 = eigenvectors[1]
     if dim >= 2:
         vec2 = eigenvectors[2]
@@ -87,6 +86,4 @@ def get_spectral_coordinates(A=np.zeros(1),
     vecs = np.column_stack((vec1, vec2, vec3))
     vecs -= vecs.mean(axis=0)
     vecs[:, :dim] /= np.linalg.norm(vecs[:, :dim], axis=0)
-    coords = pd.DataFrame(vecs, columns=["x", "y", "z"], dtype=float)
-    #print(coords)
-    return coords
+    return vecs
