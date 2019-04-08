@@ -45,33 +45,17 @@ def modify_edges_weitghts(network, mass_list):
         network.edges[edge]['weight'] = mass_list[i]
     return network
 
-def get_spectral_coordinates(A=np.zeros(1),
-                             M=np.zeros(1),
+
+def get_spectral_coordinates(A,
                              dim=3):
-    '''
-    Given a network laplacian, returns eigenvectors associated to the second,
-    third and fourth lowest eigenvalues as (x,y,z) axis, based on the spectral
-    representation.
-
-    If a modulation matrix is given, a dot operation is performed on the
-    laplacian.
-
-    Parameters
-    ----------
-    laplacian : the laplacian matrix (in array matrix form)
-    
-    mod_matrix : mass modulation matrix
-    
-    dim : choose how many dimentions to consider (must be [1,3])
-    '''
-    if M.any():
-        val, eigenvectors = scipy.sparse.linalg.eigsh(
-            scipy.sparse.csr_matrix(np.dot(A.toarray(), M)),
-            k=4, sigma=0, which='LM')
-    else:
-        val, eigenvectors = scipy.sparse.linalg.eigsh(
-            A, k=4, sigma=0, which='LM')
-
+    # SPECTRAL SHIFT
+    max_val, _ = scipy.sparse.linalg.eigsh(A, k=1, which='LM')
+    diagonal_array = np.ones((A.shape[0])) * max_val
+    shift = scipy.sparse.diags(diagonal_array)
+    B = A - shift
+    # COMPUTATION
+    vals, eigenvectors = scipy.sparse.linalg.eigsh(
+        B, k=20, which='LM')
     eigenvectors = eigenvectors.transpose()
     vec1 = eigenvectors[1]
     if dim >= 2:
