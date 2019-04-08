@@ -12,6 +12,8 @@ import network_tools as nt
 import simulated_annealing as sa
 from pdb_processing import unload_all
 
+import graph_tool.all as gt 
+
 AA_LIST = ["ALA", "ARG", "ASN", "ASP", "CYS", "GLN", "GLU", "GLY", "HIS",
            "ILE", "LEU", "LYS", "MET", "PHE", "PRO", "SER", "THR", "TRP",
            "TYR", "VAL"]
@@ -20,12 +22,18 @@ THRESHOLDS = [6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0]
 
 
 def make_basic_network_from_distance_matrix(distance_matrix, threshold):
-    return nx.from_numpy_array(distance_matrix <= threshold)
+    g = gt.Graph(directed=False)
+    g.add_edge_list(np.transpose(np.nonzero(distance_matrix <= threshold)))
+    edge_weights = g.new_edge_property('double', val=1)
+    g.ep.weight = edge_weights
+    return g
+    # return nx.from_numpy_array(distance_matrix <= threshold)
 
 
 def make_network_from_distance_matrix(dataset, distance_matrix, threshold):
-    network = nx.from_numpy_array(distance_matrix <= threshold)
-    edges = list(network.edges())
+    network = make_basic_network_from_distance_matrix(
+        distance_matrix, threshold)
+    edges = network.get_edges()[:, 0:2]
     aa_edges = []
     for j, edge in enumerate(edges):
             # AA identification
@@ -144,8 +152,10 @@ def get_global_perturbed_coordinates(networks, edge_aa_list, aa_masses,
 def get_spectral_basic_coordinates(network, target_coordinates,
     normalized=True):
     basic_coords = nt.get_spectral_coordinates(
-        (nx.normalized_laplacian_matrix(network).toarray().astype(np.float) if normalized else
-            nx.laplacian_matrix(network).toarray().astype(np.float)),
+        (gt.laplacian(
+            network, weight=network.ep.weight, normalized=True).toarray() if normalized else
+            gt.laplacian(
+                network, weight=network.ep.weight, normalized=False).toarray()),
         dim=3)
     return (basic_coords,
             rmsd.kabsch_rmsd(basic_coords.values, target_coordinates.values))
@@ -158,11 +168,13 @@ def fitness_single(masses, fitness_parameters, normalized=True):
     network = nt.modify_edges_weitghts(protein_network, masses)
     if normalized:
         guess_coordinates = nt.get_spectral_coordinates(
-            nx.normalized_laplacian_matrix(network).toarray().astype(np.float),
+            gt.laplacian(
+                network, weight=network.ep.weight, normalized=True).toarray(),
             dim=3)
     else:
         guess_coordinates = nt.get_spectral_coordinates(
-            nx.laplacian_matrix(network).toarray().astype(np.float),
+            gt.laplacian(
+                network, weight=network.ep.weight, normalized=False).toarray(),
             dim=3)
     return (guess_coordinates,
             rmsd.kabsch_rmsd(guess_coordinates.values,
@@ -175,11 +187,13 @@ def fitness_single_correlation(masses, fitness_parameters, normalized=True):
     network = nt.modify_edges_weitghts(protein_network, masses)
     if normalized:
         guess_coordinates = nt.get_spectral_coordinates(
-            nx.normalized_laplacian_matrix(network).toarray().astype(np.float),
+            gt.laplacian(
+                network, weight=network.ep.weight, normalized=True).toarray(),
             dim=3)
     else:
         guess_coordinates = nt.get_spectral_coordinates(
-            nx.laplacian_matrix(network).toarray().astype(np.float),
+            gt.laplacian(
+                network, weight=network.ep.weight, normalized=False).toarray(),
             dim=3)
     guess_coordinates = pd.DataFrame(rmsd.kabsch_rotate(
         guess_coordinates.values, target_coordinates.values),

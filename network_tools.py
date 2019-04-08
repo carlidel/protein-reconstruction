@@ -6,6 +6,7 @@ import numpy as np
 import networkx as nx
 import os
 from scipy.sparse.linalg import eigs
+import graph_tool as gt
 
 """
 Wrapping of networkx, functions and visualization tools for working with
@@ -39,10 +40,9 @@ def create_weighted_laplacian(network, mass_list):
 
 
 def modify_edges_weitghts(network, mass_list):
-    assert len(mass_list) == len(network.edges)
-    for i, edge in enumerate(network.edges):
-        network.edges[edge]['weight'] = mass_list[i]
+    network.ep.weight.a = mass_list
     return network
+
 
 def get_spectral_coordinates(A=np.zeros(1),
                              M=np.zeros(1),
