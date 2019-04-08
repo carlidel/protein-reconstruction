@@ -18,7 +18,13 @@ if __name__ == "__main__":
     results = []
     with open("processed_pdb/names.txt", 'r') as f:
         names = [name[:-1] for name in f]
-    for name in names:
+    arg_names = [[] for i in range(multiprocessing.cpu_count())]
+    for i, name in enumerate(names):
+        arg_names[i % multiprocessing.cpu_count()].append(name)
+    
+    separator = " "
+    for arg in arg_names:
+        name = separator.join(arg)
         print("python new_main.py " + name)
         results.append(pool.apply_async(
             call_proc, args=("python new_main.py " + name,)))
