@@ -6,7 +6,7 @@ import os
 from network_tools import *
 from tqdm import tqdm
 
-TQDM_FLAG = True
+TQDM_FLAG = False
 
 """
 Better implementation of a Simulated Annealing classificator.

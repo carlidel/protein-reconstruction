@@ -6,9 +6,11 @@ from tqdm import tqdm
 import protein_reconstruction as pr
 import simulated_annealing as sa
 
-TQDM_FLAG = True
+TQDM_FLAG = False
 
 if __name__ == "__main__":
+
+    print("Using Netowrkx.")
 
     # Load Data
     names, datasets, filtered_datasets, data_coords, dist_matrices = (
