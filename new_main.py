@@ -11,7 +11,7 @@ import datetime
 TQDM_FLAG = True
 
 if __name__ == "__main__":
-    
+
     if len(sys.argv) == 1:
         print("No arguments recived.")
         sys.exit()
@@ -52,45 +52,57 @@ if __name__ == "__main__":
                 with open("results/" + str_thr + "/" + names[i] + "_network.pkl", 'wb') as f:
                     pickle.dump((network, aa_edges), f)
                 with open("results/" + str_thr + "/" + names[i] + "_spectral_basic.pkl", 'wb') as f:
-                    pickle.dump((sb_normed_coords, sb_normed_score, sb_normed_score_v2, sb_not_normed_coords, sb_not_normed_score, sb_not_normed_score_v2), f)
+                    pickle.dump((sb_normed_coords, sb_normed_score, sb_normed_score_v2,
+                                 sb_not_normed_coords, sb_not_normed_score, sb_not_normed_score_v2), f)
 
             # Single Processing normalized
             for threshold in tqdm(pr.THRESHOLDS, desc='S.A. RMSD-Based.', disable=TQDM_FLAG):
                 str_thr = str(threshold).replace('.', '')
-                with open("results/" + str_thr + "/" + names[i] + "_network.pkl", 'rb') as f:
-                    network, aa_edges = pickle.load(f)
-                masses, story = sa.simulated_annealing(len(aa_edges),
-                                                       pr.fitness_single,
-                                                       (network,
-                                                        data_coords[i].values),
-                                                       n_iterations=10000,
-                                                       normalized=True)
-                sa_coords, sa_score = pr.get_perturbed_coordinates(
-                    network, masses, data_coords[i].values, normalized=True)
+                if not os.path.exists("results/" + str_thr + "/single_norm/" + names[i] + "_single_norm.pkl"):
+                    with open("results/" + str_thr + "/" + names[i] + "_network.pkl", 'rb') as f:
+                        network, aa_edges = pickle.load(f)
+                    masses, story = sa.simulated_annealing(len(aa_edges),
+                                                           pr.fitness_single,
+                                                           (network,
+                                                            data_coords[i].values),
+                                                           n_iterations=10000,
+                                                           normalized=True)
+                    sa_coords, sa_score = pr.get_perturbed_coordinates(
+                        network, masses, data_coords[i].values, normalized=True)
 
-                sa_coords = pd.DataFrame(sa_coords, columns=['x', 'y', 'z'])
+                    sa_coords = pd.DataFrame(
+                        sa_coords, columns=['x', 'y', 'z'])
 
-                with open("results/" + str_thr + "/single_norm/" + names[i] + "_single_norm.pkl", 'wb') as f:
-                    pickle.dump((masses, sa_coords, sa_score, story), f)
+                    with open("results/" + str_thr + "/single_norm/" + names[i] + "_single_norm.pkl", 'wb') as f:
+                        pickle.dump((masses, sa_coords, sa_score, story), f)
+                else:
+                    print("RMSD work for {}, thr {} already done. Skipping.".format(
+                        names[i], threshold))
 
             # Single Processing normalized correlation fitness
             for threshold in tqdm(pr.THRESHOLDS, desc='S.A. Corr-Based', disable=TQDM_FLAG):
                 str_thr = str(threshold).replace('.', '')
-                with open("results/" + str_thr + "/" + names[i] + "_network.pkl", 'rb') as f:
-                    network, aa_edges = pickle.load(f)
-                masses, story = sa.simulated_annealing(len(aa_edges),
-                                                       pr.fitness_single_correlation,
-                                                       (network,
-                                                        data_coords[i].values),
-                                                       n_iterations=10000,
-                                                       normalized=True)
-                sa_coords, sa_score = pr.get_perturbed_coordinates(
-                    network, masses, data_coords[i].values, normalized=True)
+                if not os.path.exists("results/" + str_thr + "/single_norm_v2/" + names[i] + "_single_norm_v2.pkl"):
+                    with open("results/" + str_thr + "/" + names[i] + "_network.pkl", 'rb') as f:
+                        network, aa_edges = pickle.load(f)
+                    masses, story = sa.simulated_annealing(len(aa_edges),
+                                                           pr.fitness_single_correlation,
+                                                           (network,
+                                                            data_coords[i].values),
+                                                           n_iterations=10000,
+                                                           normalized=True)
+                    sa_coords, sa_score = pr.get_perturbed_coordinates(
+                        network, masses, data_coords[i].values, normalized=True)
 
-                sa_coords = pd.DataFrame(sa_coords, columns=['x', 'y', 'z'])
+                    sa_coords = pd.DataFrame(
+                        sa_coords, columns=['x', 'y', 'z'])
 
-                with open("results/" + str_thr + "/single_norm_v2/" + names[i] + "_single_norm_v2.pkl", 'wb') as f:
-                    pickle.dump((masses, sa_coords, sa_score, story), f)
+                    with open("results/" + str_thr + "/single_norm_v2/" + names[i] + "_single_norm_v2.pkl", 'wb') as f:
+                        pickle.dump((masses, sa_coords, sa_score, story), f)
+                else:
+                    print("Correlation work for {}, thr {} already done. Skipping.".format(
+                        names[i], threshold))
+            # ENDING
             end_time = datetime.datetime.now()
             print("Finished with {} at time: {}".format(name, end_time))
             difference_time = end_time - begin_time
